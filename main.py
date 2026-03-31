@@ -1,3 +1,4 @@
+from fastapi import FastAPI
 from fastapi.responses import FileResponse
 import requests
 import os
