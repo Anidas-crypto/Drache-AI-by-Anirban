@@ -13,6 +13,33 @@
         <input id="input" placeholder="Type a message..." />
         <button onclick="sendMessage()">➤</button>
     </div>
-    <script src="logic.js"></script>
+
+<script>
+async function sendMessage() {
+    let input = document.getElementById("input");
+    let message = input.value;
+
+    if (!message) return;
+
+    let chatbox = document.getElementById("chatbox");
+
+    chatbox.innerHTML += `<div class="message user">${message}</div>`;
+    input.value = "";
+    chatbox.scrollTop = chatbox.scrollHeight;
+
+    try {
+        let response = await fetch(`/chat?prompt=${encodeURIComponent(message)}`);
+        let data = await response.json();
+
+        let reply = typeof data === "string" ? data : data.error || JSON.stringify(data);
+
+        chatbox.innerHTML += `<div class="message bot">${reply}</div>`;
+    } catch (err) {
+        chatbox.innerHTML += `<div class="message bot">❌ Server error</div>`;
+    }
+
+    chatbox.scrollTop = chatbox.scrollHeight;
+}
+</script>
 </body>
 </html>
