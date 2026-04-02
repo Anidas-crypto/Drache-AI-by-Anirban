@@ -11,7 +11,7 @@ body {
     flex-direction: column;
     height: 100vh;
 
-    max-width: 920px;   /* increase from 800 → 900 */
+    max-width: 920px;
     width: 100%;
 
     margin: auto;
