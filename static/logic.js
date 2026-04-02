@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // ✅ Show bot reply
             const botMsg = document.createElement("div");
             botMsg.classList.add("message", "bot");
-            botMsg.innerText = reply;
+            botMsg.innerHTML = formatMessage(reply);
             chatbox.appendChild(botMsg);
             // 🔥 scroll after reply
             chatbox.scrollTo({
@@ -58,10 +58,43 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
     // ✅ Enter key support
-    input.addEventListener("keypress", function (e) {
+    input.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
+            e.preventDefault();
             sendMessage();
         }
     });
+
+
+
+
+
+    function formatMessage(text) {
+        return text.replace(/```(\w+)?\n([\s\S]*?)```/g, function (_, lang, code) {
+            return `
+            <div class="code-block">
+                <div class="code-header">
+                    <span>${lang || "code"}</span>
+                    <button onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>${escapeHtml(code)}</code></pre>
+            </div>
+            `;
+        }).replace(/\n/g, "<br>");
+    }
+    function escapeHtml(text) {
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
+    function copyCode(btn) {
+        const code = btn.parentElement.nextElementSibling.innerText;
+        navigator.clipboard.writeText(code);
+        
+        btn.innerText = "Copied!";
+        setTimeout(() => btn.innerText = "Copy", 1500);
+    }
+    window.copyCode = copyCode;
 
 });

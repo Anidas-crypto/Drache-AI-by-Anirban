@@ -41,6 +41,7 @@ body {
     padding-bottom: 90px;
     display: flex;
     flex-direction: column;
+    scroll-behavior: smooth;
 }
 
 /* Messages */
@@ -111,7 +112,7 @@ input::placeholder {
 }
 
 /* Button */
-button {
+.input-area button {
     margin-left: 10px;
     padding: 0 16px;
     border: none;
@@ -124,4 +125,55 @@ button {
 
 button:hover {
     background: #0d8c6d;
+}
+
+
+/* 🔥 Code block container */
+.code-block {
+    background: #0d0d0d;
+    border-radius: 10px;
+    margin-top: 10px;
+    overflow: hidden;
+    border: 1px solid #2a2a2a;
+}
+
+/* Header (language + copy button) */
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #1a1a1a;
+    font-size: 12px;
+    color: #aaa;
+}
+
+/* Copy button (small clean one) */
+.code-header button {
+    background: transparent;
+    border: 1px solid #333;
+    color: #aaa;
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.code-header button:hover {
+    background: #333;
+}
+
+/* Code text */
+.code-block pre {
+    margin: 0;
+    padding: 12px;
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Prevent wrapping issues */
+.code-block code {
+    white-space: pre;
 }
