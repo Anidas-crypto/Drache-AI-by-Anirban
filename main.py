@@ -21,10 +21,14 @@ def home():
 def chat(prompt: str, user: str = "guest"):
     try:
         # 🔥 HARD CONTROL (ADD HERE)
-        if any(q in prompt.lower() for q in [
+        if any(q in prompt_lower() for q in [
             "who created you",
             "who is your developer",
-            "who made you"
+            "who made you",
+            "who made you",
+            "who built you",
+            "your creator",
+            "your developer"
         ]):
             return "I was created by Anirban."
         if any(q in prompt_lower for q in [
