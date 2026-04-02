@@ -38,7 +38,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
-    padding-bottom: 90px; /* 🔥 IMPORTANT */
+    padding-bottom: 90px;
     display: flex;
     flex-direction: column;
 }
@@ -87,10 +87,10 @@ body {
     border-radius: 12px;
 }
 
-/* Bottom input (after message) */
 .input-area.bottom {
-    position: relative;   /* 🔥 IMPORTANT */
+    position: relative;
     width: 100%;
+    max-width: 900px;
     border-top: 1px solid #222;
 }
 

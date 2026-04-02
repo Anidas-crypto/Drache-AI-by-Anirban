@@ -39,17 +39,24 @@ document.addEventListener("DOMContentLoaded", function () {
             botMsg.classList.add("message", "bot");
             botMsg.innerText = reply;
             chatbox.appendChild(botMsg);
+            // 🔥 scroll after reply
+            chatbox.scrollTo({
+                top: chatbox.scrollHeight,
+                behavior: "smooth"
+            });
 
         } catch (err) {
             const errorMsg = document.createElement("div");
             errorMsg.classList.add("message", "bot");
             errorMsg.innerText = "❌ Server error";
             chatbox.appendChild(errorMsg);
+            // 🔥 scroll after error too
+            chatbox.scrollTo({
+                top: chatbox.scrollHeight,
+                behavior: "smooth"
+            });
         }
-
-        chatbox.scrollTop = chatbox.scrollHeight;
     };
-
     // ✅ Enter key support
     input.addEventListener("keypress", function (e) {
         if (e.key === "Enter") {
