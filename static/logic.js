@@ -20,7 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
         chatbox.appendChild(userMsg);
 
         input.value = "";
-        chatbox.scrollTop = chatbox.scrollHeight;
+        chatbox.scrollTo({
+            top: chatbox.scrollHeight,
+            behavior: "smooth"
+        });
 
         try {
             // ✅ API call
