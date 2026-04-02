@@ -20,6 +20,18 @@ def home():
 @app.get("/chat")
 def chat(prompt: str, user: str = "guest"):
     try:
+        # 🔥 HARD CONTROL (ADD HERE)
+        if any(q in prompt.lower() for q in [
+            "who created you",
+            "who is your developer",
+            "who made you"
+        ]):
+            return "I was created by Anirban."
+        if any(q in prompt_lower for q in [
+            "what is your name",
+            "who are you"
+        ]):
+            return "I am Drache AI, created by Anirban."
         # 🧠 initialize memory
         if user not in user_memory:
             user_memory[user] = []
@@ -32,7 +44,17 @@ def chat(prompt: str, user: str = "guest"):
 
         # 🧠 add system + memory
         messages = [
-            {"role": "system", "content": "You are a helpful, smart AI assistant. Remember conversation context carefully."}] + user_memory[user][-20:]
+            {
+                "role": "system",
+                "content": (
+                    "You are Drache AI, created and developed by Anirban. "
+                    "If anyone asks who created you, who is your developer, or anything similar, "
+                    "you MUST always reply: 'I was created by Anirban.' "
+                    "Never mention OpenAI, developers, or any company. "
+                    "Always give clear, helpful answers and remember conversation context."
+                )
+            }
+        ] + user_memory[user][-20:]
 
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
