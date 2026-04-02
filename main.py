@@ -30,8 +30,9 @@ def chat(prompt: str, user: str = "guest"):
             "content": prompt
         })
 
-        # 🧠 keep last 10 messages
-        messages = user_memory[user][-10:]
+        # 🧠 add system + memory
+        messages = [
+            {"role": "system", "content": "You are a helpful, smart AI assistant. Remember conversation context carefully."}] + user_memory[user][-20:]
 
         response = requests.post(
             "https://openrouter.ai/api/v1/chat/completions",
