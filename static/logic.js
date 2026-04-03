@@ -1,6 +1,53 @@
+const supabaseUrl = "https://zhrjmnrfklzuxmfbdqhg.supabase.co";
+const supabaseKey = "sb_publishable_aIbByN1rFc9V3AH41Kyz6A_e1XppA1Z";
+
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
 document.addEventListener("DOMContentLoaded", function () {
 
+    // ✅ FIX: define elements FIRST
+    const chatbox = document.getElementById("chatbox");
     const input = document.getElementById("input");
+    const inputArea = document.getElementById("inputArea");
+    const welcome = document.getElementById("welcome");
+
+    // 🔥 LOAD OLD MESSAGES
+    async function loadMessages() {
+        const { data, error } = await supabase
+            .from("messages")
+            .select("*")
+            .order("created_at", { ascending: true });
+
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        // ✅ hide welcome if chat exists
+        if (data.length > 0 && welcome) {
+            welcome.style.display = "none";
+            inputArea.classList.remove("center");
+            inputArea.classList.add("bottom");
+        }
+
+        data.forEach(msg => {
+            const div = document.createElement("div");
+            div.classList.add("message", msg.role);
+
+            // ✅ FIX: keep formatting for bot
+            div.innerHTML = msg.role === "bot"
+                ? formatMessage(msg.content)
+                : msg.content;
+
+            chatbox.appendChild(div);
+        });
+
+        chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    loadMessages();
+
+    // 🔥 AUTO RESIZE INPUT
     function autoResize() {
         input.style.height = "auto";
         const computed = window.getComputedStyle(input);
@@ -8,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const padding =
             parseFloat(computed.paddingTop) +
             parseFloat(computed.paddingBottom);
+
         const singleLineHeight = lineHeight + padding;
 
         if (input.scrollHeight > singleLineHeight + 2) {
@@ -19,15 +67,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     input.addEventListener("input", autoResize);
 
-    const chatbox = document.getElementById("chatbox");
-    const inputArea = document.getElementById("inputArea");
-    const welcome = document.getElementById("welcome");
-
+    // 🔥 SEND MESSAGE
     window.sendMessage = async function () {
         let message = input.value.trim();
-
         if (!message) return;
-        // ❌ Hide welcome screen after first message
+
+        // hide welcome
         if (welcome) {
             welcome.style.opacity = "0";
             setTimeout(() => {
@@ -35,28 +80,31 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 300);
         }
 
-        // ✅ Move input box to bottom
         inputArea.classList.remove("center");
         inputArea.classList.add("bottom");
 
-        // ✅ Show user message
+        // USER MESSAGE
         const userMsg = document.createElement("div");
         userMsg.classList.add("message", "user");
         userMsg.innerText = message;
         chatbox.appendChild(userMsg);
 
+        // save user message
+        await supabase.from("messages").insert([
+            { role: "user", content: message }
+        ]);
+
         input.value = "";
         input.style.height = "auto";
+
         chatbox.scrollTo({
             top: chatbox.scrollHeight,
             behavior: "smooth"
         });
 
-
-        // 🔥 Typing dots
+        // typing dots
         const typingMsg = document.createElement("div");
         typingMsg.classList.add("message", "bot", "typing");
-        
         typingMsg.innerHTML = `
         <div class="dots">
             <span></span>
@@ -65,35 +113,27 @@ document.addEventListener("DOMContentLoaded", function () {
         </div>
         `;
         chatbox.appendChild(typingMsg);
-        
-        chatbox.scrollTo({
-            top: chatbox.scrollHeight,
-            behavior: "smooth"
-        });
-
 
         try {
-            // ✅ API call
-            let response = await fetch(`/chat?prompt=${encodeURIComponent(message)}`, {
-                credentials: "same-origin"
-            });
+            let response = await fetch(`/chat?prompt=${encodeURIComponent(message)}`);
             let data = await response.json();
 
-            // ❌ remove typing dots
             typingMsg.remove();
 
             let reply = data.reply || data.error || "Error";
-            
-            // ✅ Show bot reply container
+
             const botMsg = document.createElement("div");
             botMsg.classList.add("message", "bot");
             chatbox.appendChild(botMsg);
-            // 🔥 animate typing
+
             await typeMessage(botMsg, reply);
-            // ✅ apply formatting AFTER typing
             botMsg.innerHTML = formatMessage(reply);
-            
-            // 🔥 scroll after reply
+
+            // save bot reply
+            await supabase.from("messages").insert([
+                { role: "bot", content: reply }
+            ]);
+
             chatbox.scrollTo({
                 top: chatbox.scrollHeight,
                 behavior: "smooth"
@@ -101,18 +141,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
         } catch (err) {
             typingMsg.remove();
+
             const errorMsg = document.createElement("div");
             errorMsg.classList.add("message", "bot");
             errorMsg.innerText = "❌ Server error";
             chatbox.appendChild(errorMsg);
-            // 🔥 scroll after error too
-            chatbox.scrollTo({
-                top: chatbox.scrollHeight,
-                behavior: "smooth"
-            });
         }
     };
-    // ✅ Enter key support
+
+    // ENTER KEY
     input.addEventListener("keydown", function (e) {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
@@ -120,10 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-
-
-
-
+    // FORMAT MESSAGE
     function formatMessage(text) {
         return text.replace(/```(\w+)?\n([\s\S]*?)```/g, function (_, lang, code) {
             return `
@@ -137,38 +171,37 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         }).replace(/\n/g, "<br>");
     }
+
     function escapeHtml(text) {
         return text
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
     }
+
     function copyCode(btn) {
         const code = btn.parentElement.nextElementSibling.innerText;
         navigator.clipboard.writeText(code);
-        
+
         btn.innerText = "Copied!";
         setTimeout(() => btn.innerText = "Copy", 1500);
     }
+
     window.copyCode = copyCode;
-    
-    
+
     window.useSuggestion = function (el) {
-    const input = document.getElementById("input");
+        input.value = el.innerText.trim();
+        sendMessage();
+    };
 
-    input.value = el.innerText.trim();
+    async function typeMessage(element, text) {
+        let words = text.split(" ");
+        element.innerHTML = "";
 
-    // send automatically
-    sendMessage();
-};
-async function typeMessage(element, text) {
-    let words = text.split(" ");
-    element.innerHTML = "";
-
-    for (let i = 0; i < words.length; i++) {
-        element.innerHTML += words[i] + " ";
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 30 + 20)); // speed
+        for (let i = 0; i < words.length; i++) {
+            element.innerHTML += words[i] + " ";
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 30 + 20));
+        }
     }
-}
 
 });
