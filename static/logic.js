@@ -116,12 +116,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
             let response = await fetch(`/chat?prompt=${encodeURIComponent(message)}`);
+            if (!response.ok) {
+                throw new Error("Server not responding");
+            }
             let data = await response.json();
-
             typingMsg.remove();
-
-            let reply = data.reply || data.error || "Error";
-
+            let reply = data.reply || "No response";
             const botMsg = document.createElement("div");
             botMsg.classList.add("message", "bot");
             chatbox.appendChild(botMsg);
@@ -129,22 +129,18 @@ document.addEventListener("DOMContentLoaded", function () {
             await typeMessage(botMsg, reply);
             botMsg.innerHTML = formatMessage(reply);
 
-            // save bot reply
             await supabase.from("messages").insert([
                 { role: "bot", content: reply }
             ]);
 
-            chatbox.scrollTo({
-                top: chatbox.scrollHeight,
-                behavior: "smooth"
-            });
-
         } catch (err) {
+            console.error("Fetch failed:", err);
+
             typingMsg.remove();
 
             const errorMsg = document.createElement("div");
             errorMsg.classList.add("message", "bot");
-            errorMsg.innerText = "❌ Server error";
+            errorMsg.innerText = "❌ Backend not running or error";
             chatbox.appendChild(errorMsg);
         }
     };
