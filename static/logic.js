@@ -3,11 +3,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const input = document.getElementById("input");
     const chatbox = document.getElementById("chatbox");
     const inputArea = document.getElementById("inputArea");
+    const welcome = document.getElementById("welcome");
 
     window.sendMessage = async function () {
         let message = input.value.trim();
 
         if (!message) return;
+        // ❌ Hide welcome screen after first message
+        if (welcome) {
+            welcome.style.opacity = "0";
+            setTimeout(() => {
+                welcome.style.display = "none";
+            }, 300);
+        }
 
         // ✅ Move input box to bottom
         inputArea.classList.remove("center");
@@ -25,12 +33,35 @@ document.addEventListener("DOMContentLoaded", function () {
             behavior: "smooth"
         });
 
+
+        // 🔥 Typing dots
+        const typingMsg = document.createElement("div");
+        typingMsg.classList.add("message", "bot", "typing");
+        
+        typingMsg.innerHTML = `
+        <div class="dots">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        `;
+        chatbox.appendChild(typingMsg);
+        
+        chatbox.scrollTo({
+            top: chatbox.scrollHeight,
+            behavior: "smooth"
+        });
+
+
         try {
             // ✅ API call
             let response = await fetch(`/chat?prompt=${encodeURIComponent(message)}`, {
                 credentials: "same-origin"
             });
             let data = await response.json();
+
+            // ❌ remove typing dots
+            typingMsg.remove();
 
             let reply = data.reply || data.error || "Error";
 
@@ -46,6 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
         } catch (err) {
+            typingMsg.remove();
             const errorMsg = document.createElement("div");
             errorMsg.classList.add("message", "bot");
             errorMsg.innerText = "❌ Server error";
@@ -96,5 +128,16 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => btn.innerText = "Copy", 1500);
     }
     window.copyCode = copyCode;
+
+
+
+    window.useSuggestion = function (el) {
+    const input = document.getElementById("input");
+
+    input.value = el.innerText.trim();
+
+    // send automatically
+    sendMessage();
+};
 
 });

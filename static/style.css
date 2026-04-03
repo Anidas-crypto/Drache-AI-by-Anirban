@@ -81,10 +81,11 @@ body {
 /* Centered input (initial state) */
 .input-area.center {
     position: absolute;
-    top: 50%;
+    top: 65%;   /* 🔥 change from 50% → 65% */
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 60%;
+    width: 70%;
+    max-width: 700px;
     border: 1px solid #2a2a2a;
     border-radius: 12px;
 }
@@ -178,4 +179,80 @@ button:hover {
 /* Prevent wrapping issues */
 .code-block code {
     white-space: pre;
+}
+
+
+/* Welcome screen */
+.welcome {
+    position: absolute;
+    top: 35%;   /* 🔥 change from 40% → 35% */
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.welcome h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.welcome p {
+    color: #aaa;
+    margin-bottom: 20px;
+}
+
+/* Suggestion cards */
+.suggestions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 80px;
+}
+
+.card {
+    background: #1e1e1e;
+    padding: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid #2a2a2a;
+    transition: 0.2s;
+    font-size: 14px;
+}
+
+.card:hover {
+    background: #2a2a2a;
+}
+
+/* Typing dots */
+.typing .dots {
+    display: flex;
+    gap: 5px;
+    padding: 6px 4px;
+}
+
+.typing .dots span {
+    width: 8px;
+    height: 8px;
+    background: #aaa;
+    border-radius: 50%;
+    display: inline-block;
+    animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing .dots span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+.typing .dots span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+.typing .dots span:nth-child(3) {
+    animation-delay: 0s;
+}
+
+@keyframes bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
 }

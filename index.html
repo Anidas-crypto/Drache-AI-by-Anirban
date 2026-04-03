@@ -11,6 +11,26 @@
 </head>
 <body>
     <div class="app">
+
+        <div id="welcome" class="welcome">
+            <h1>👋 Welcome to Catura AI</h1>
+            <p>How can I help you today?</p>
+            <div class="suggestions">
+                <div class="card" onclick="useSuggestion(this)">
+                    Explain quantum computing simply
+                </div>
+                <div class="card" onclick="useSuggestion(this)">
+                    Write a Python script for a chatbot
+                </div>
+                <div class="card" onclick="useSuggestion(this)">
+                    Help me with my homework
+                </div>
+                <div class="card" onclick="useSuggestion(this)">
+                    Give me startup ideas
+                </div>
+            </div>
+        </div>
+
         <div class="header">Catura AI</div>
         <div id="chatbox"></div>
         <div class="input-area center" id="inputArea">
@@ -18,6 +38,7 @@
             <button onclick="sendMessage()">➤</button>
         </div>
     </div>
+    
 <script src="static/logic.js"></script>
 </body>
 </html>
