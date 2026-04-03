@@ -3,13 +3,17 @@ body {
     font-family: system-ui, -apple-system, sans-serif;
     background: #0d0d0d;
     color: #e5e5e5;
+    overflow-x: hidden;
+}
+html {
+    scroll-behavior: smooth;
 }
 
 /* App container */
 .app {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100dvh;
     width: 100%;
     background: #121212;
     border-left: 1px solid #222;
@@ -37,7 +41,7 @@ body {
     margin: 0 auto;     /* 🔥 center */
 
     padding: 20px;
-    padding-bottom: 90px;
+    padding-bottom: 120px;
 
     display: flex;
     flex-direction: column;
@@ -46,7 +50,7 @@ body {
 
 /* Messages */
 .message {
-    max-width: 75%;
+    max-width: 90%;
     padding: 12px 16px;
     margin: 8px 0;
     border-radius: 12px;
@@ -91,11 +95,15 @@ body {
 }
 
 .input-area.bottom {
-    position: relative;
+    position: sticky;   /* 🔥 key change */
+    bottom: 0;
+
     width: 100%;
     display: flex;
     justify-content: center;
+
     border-top: 1px solid #222;
+    background: #121212;
 }
 
 .input-area.bottom input {
@@ -259,5 +267,60 @@ button:hover {
     }
     40% {
         transform: scale(1);
+    }
+}
+
+@media (max-width: 600px) {
+
+    /* Header smaller */
+    .header {
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    /* Chat padding */
+    #chatbox {
+        padding: 12px;
+    }
+
+    /* Input full width */
+    .input-area.center {
+        width: 90%;
+        top: 70%;
+    }
+
+    .input-area.bottom input {
+        max-width: 100%;
+    }
+
+    /* Messages full readable */
+    .message {
+        max-width: 95%;
+        font-size: 13px;
+    }
+
+    /* Welcome screen smaller */
+    .welcome {
+        width: 90%;
+        top: 30%;
+        text-align: center;
+    }
+
+    .welcome h1 {
+        font-size: 22px;
+    }
+
+    .welcome p {
+        font-size: 14px;
+    }
+
+    /* Cards stacked */
+    .suggestions {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        font-size: 13px;
+        padding: 12px;
     }
 }
