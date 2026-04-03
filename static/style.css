@@ -10,16 +10,10 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-
-    max-width: 920px;
     width: 100%;
-
-    margin: auto;
     background: #121212;
-
     border-left: 1px solid #222;
     border-right: 1px solid #222;
-
     position: relative;
     overflow: hidden;
 }
@@ -37,8 +31,14 @@ body {
 #chatbox {
     flex: 1;
     overflow-y: auto;
+
+    width: 100%;
+    max-width: 800px;   /* 🔥 controls chat width */
+    margin: 0 auto;     /* 🔥 center */
+
     padding: 20px;
     padding-bottom: 90px;
+
     display: flex;
     flex-direction: column;
     scroll-behavior: smooth;
@@ -93,8 +93,13 @@ body {
 .input-area.bottom {
     position: relative;
     width: 100%;
-    max-width: 900px;
+    display: flex;
+    justify-content: center;
     border-top: 1px solid #222;
+}
+
+.input-area.bottom input {
+    max-width: 700px;
 }
 
 /* Input */

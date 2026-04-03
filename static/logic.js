@@ -64,12 +64,16 @@ document.addEventListener("DOMContentLoaded", function () {
             typingMsg.remove();
 
             let reply = data.reply || data.error || "Error";
-
-            // ✅ Show bot reply
+            
+            // ✅ Show bot reply container
             const botMsg = document.createElement("div");
             botMsg.classList.add("message", "bot");
-            botMsg.innerHTML = formatMessage(reply);
             chatbox.appendChild(botMsg);
+            // 🔥 animate typing
+            await typeMessage(botMsg, reply);
+            // ✅ apply formatting AFTER typing
+            botMsg.innerHTML = formatMessage(reply);
+            
             // 🔥 scroll after reply
             chatbox.scrollTo({
                 top: chatbox.scrollHeight,
@@ -128,9 +132,8 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => btn.innerText = "Copy", 1500);
     }
     window.copyCode = copyCode;
-
-
-
+    
+    
     window.useSuggestion = function (el) {
     const input = document.getElementById("input");
 
@@ -139,5 +142,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // send automatically
     sendMessage();
 };
+async function typeMessage(element, text) {
+    let words = text.split(" ");
+    element.innerHTML = "";
+
+    for (let i = 0; i < words.length; i++) {
+        element.innerHTML += words[i] + " ";
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 30 + 20)); // speed
+    }
+}
 
 });
