@@ -578,3 +578,23 @@ html {
     color: #555;
     font-size: 13px;
 }
+
+/* ============================
+   SIDEBAR LOGO
+============================ */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    font-size: 17px;
+    line-height: 1;
+}
+
+.sidebar-logo {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    border-radius: 6px;
+    vertical-align: middle;
+}
