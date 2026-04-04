@@ -1,46 +1,191 @@
+/* ============================
+   BASE
+============================ */
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     font-family: system-ui, -apple-system, sans-serif;
     background: #0d0d0d;
     color: #e5e5e5;
-    overflow-x: hidden;
+    overflow: hidden;
+    display: flex;
+    height: 100dvh;
 }
+
 html {
     scroll-behavior: smooth;
 }
 
-/* App container */
-.app {
+/* ============================
+   SIDEBAR
+============================ */
+.sidebar {
+    width: 0;
+    min-width: 0;
+    height: 100dvh;
+    background: #1a1a1a;
+    border-right: 1px solid #2a2a2a;
     display: flex;
     flex-direction: column;
-    min-height: 100dvh;
-    width: 100%;
-    max-width: 100vw;
-    background: #121212;
-    border-left: 1px solid #222;
-    border-right: 1px solid #222;
+    overflow: hidden;
+    transition: width 0.3s ease, min-width 0.3s ease;
+    flex-shrink: 0;
     position: relative;
-    overflow-x: hidden;
-    box-sizing: border-box;
+    z-index: 100;
 }
 
-/* Header */
-.header {
-    padding: 15px;
-    text-align: center;
+.sidebar.open {
+    width: 260px;
+    min-width: 260px;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 16px;
+    border-bottom: 1px solid #2a2a2a;
     font-weight: 600;
+    font-size: 16px;
+    white-space: nowrap;
+}
+
+/* Close button hidden on desktop */
+.close-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #aaa;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.close-btn:hover {
+    background: #2a2a2a;
+    color: #fff;
+}
+
+.sidebar-menu {
+    flex: 1;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #e5e5e5;
+    transition: background 0.2s;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.sidebar-item:hover {
+    background: #2a2a2a;
+}
+
+.sidebar-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.sidebar-bottom {
+    padding: 12px 8px;
+    border-top: 1px solid #2a2a2a;
+    overflow: hidden;
+}
+
+.sidebar-item.logout {
+    color: #ff6b6b;
+}
+
+.sidebar-item.logout:hover {
+    background: #2a1a1a;
+}
+
+/* Overlay — hidden on desktop */
+.sidebar-overlay {
+    display: none;
+}
+
+/* ============================
+   TOGGLE BUTTONS
+============================ */
+.sidebar-toggle {
+    background: transparent;
+    border: none;
+    color: #e5e5e5;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+.sidebar-toggle:hover {
+    background: #2a2a2a;
+}
+
+/* Desktop: show sidebar icon only */
+.desktop-toggle { display: flex; }
+.mobile-toggle  { display: none; }
+
+/* ============================
+   APP
+============================ */
+.app {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    background: #121212;
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+}
+
+/* ============================
+   HEADER
+============================ */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    font-weight: 600;
+    font-size: 15px;
     border-bottom: 1px solid #222;
     background: #121212;
+    flex-shrink: 0;
 }
 
-/* Chat area */
+/* ============================
+   CHATBOX
+============================ */
 #chatbox {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     width: 100%;
-    max-width: 800px;   /* 🔥 controls chat width */
-    margin: 0 auto;     /* 🔥 center */
+    max-width: 800px;
+    margin: 0 auto;
     padding: 20px;
     padding-bottom: 120px;
     display: flex;
@@ -49,38 +194,30 @@ html {
     box-sizing: border-box;
 }
 
-/* Messages */
+/* ============================
+   MESSAGES
+============================ */
 .message {
-    max-width: 85%;        /* 🔥 reduce width */
-    width: fit-content;    /* 🔥 shrink to content */
-    
+    max-width: 75%;
+    width: fit-content;
     padding: 12px 16px;
     margin: 8px 0;
-    
     border-radius: 12px;
     font-size: 14px;
     line-height: 1.4;
-
-    word-wrap: break-word;     /* 🔥 important */
-    overflow-wrap: break-word; /* 🔥 important */
-    box-sizing: border-box;
-}
-
-/* User message */
-.user {
-    background: #10a37f;
-    color: white;
-    align-self: flex-end;
-    margin-left: auto;
-    margin-right: 0;       /* 🔥 add this */
-    max-width: 75%;
-    width: fit-content;
     word-wrap: break-word;
     overflow-wrap: break-word;
     box-sizing: border-box;
 }
 
-/* Bot message */
+.user {
+    background: #10a37f;
+    color: white;
+    align-self: flex-end;
+    margin-left: auto;
+    margin-right: 0;
+}
+
 .bot {
     background: #1e1e1e;
     color: #e5e5e5;
@@ -88,52 +225,42 @@ html {
     border: 1px solid #2a2a2a;
 }
 
-/* Input area (base) */
+/* ============================
+   INPUT AREA
+============================ */
 .input-area {
     display: flex;
     align-items: center;
-    gap: 8px;                 /* 🔥 spacing like ChatGPT */
-
-    padding: 8px;             /* 🔥 smaller */
-    background: #121212;
-
+    gap: 8px;
+    padding: 8px;
+    background: #1a1a1a;
     border: 1px solid #2a2a2a;
-    border-radius: 14px;      /* 🔥 smooth container */
-
+    border-radius: 14px;
     max-width: 700px;
     width: 95%;
     margin: 0 auto;
-    backdrop-filter: blur(10px);
+    box-sizing: border-box;
 }
 
-/* Centered input (initial state) */
 .input-area.center {
     position: absolute;
-    top: 65%;   /* 🔥 change from 50% → 65% */
+    top: 62%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 70%;
     max-width: 700px;
-    border: 1px solid #2a2a2a;
-    border-radius: 12px;
 }
 
 .input-area.bottom {
     position: sticky;
-    bottom: 10px;   /* 🔥 little floating feel */
-
-    background: transparent;
-    border: none;
+    bottom: 10px;
+    background: #121212;
+    border: 1px solid #2a2a2a;
 }
 
-.input-area.bottom textarea {
-    max-width: 700px;
-}
-
-/* Input */
 #input {
     flex: 1;
-    padding: 8px 12px;   /* 🔥 smaller padding */
+    padding: 8px 12px;
     border-radius: 10px;
     border: 1px solid #2a2a2a;
     outline: none;
@@ -141,40 +268,42 @@ html {
     font-family: inherit;
     background: #1e1e1e;
     color: #e5e5e5;
-
     resize: none;
     overflow-y: hidden;
-
-    min-height: 22px;     /* 🔥 smaller */
-    max-height: 120px;    /* 🔥 slightly reduced */
-
+    min-height: 22px;
+    max-height: 120px;
     line-height: 1.4;
-
     white-space: pre-wrap;
     word-break: break-word;
+    box-sizing: border-box;
 }
+
 #input::placeholder {
     color: #888;
 }
 
-/* Button */
 .input-area button {
     width: 38px;
     height: 38px;
     border-radius: 10px;
     background: #10a37f;
+    border: none;
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
     padding: 0;
+    flex-shrink: 0;
 }
 
-button:hover {
+.input-area button:hover {
     background: #0d8c6d;
 }
 
-
-/* 🔥 Code block container */
+/* ============================
+   CODE BLOCKS
+============================ */
 .code-block {
     background: #0d0d0d;
     border-radius: 10px;
@@ -183,7 +312,6 @@ button:hover {
     border: 1px solid #2a2a2a;
 }
 
-/* Header (language + copy button) */
 .code-header {
     display: flex;
     justify-content: space-between;
@@ -194,7 +322,6 @@ button:hover {
     color: #aaa;
 }
 
-/* Copy button (small clean one) */
 .code-header button {
     background: transparent;
     border: 1px solid #333;
@@ -203,13 +330,14 @@ button:hover {
     border-radius: 6px;
     cursor: pointer;
     font-size: 12px;
+    width: auto;
+    height: auto;
 }
 
 .code-header button:hover {
     background: #333;
 }
 
-/* Code text */
 .code-block pre {
     margin: 0;
     padding: 12px;
@@ -219,18 +347,22 @@ button:hover {
     line-height: 1.5;
 }
 
-/* Prevent wrapping issues */
 .code-block code {
     white-space: pre;
 }
 
-
-/* Welcome screen */
+/* ============================
+   WELCOME SCREEN
+============================ */
 .welcome {
     position: absolute;
-    top: 35%;   /* 🔥 change from 40% → 35% */
+    top: 35%;
     left: 50%;
     transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    z-index: 1;
 }
 
 .welcome h1 {
@@ -243,12 +375,12 @@ button:hover {
     margin-bottom: 20px;
 }
 
-/* Suggestion cards */
 .suggestions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 12px;
     margin-bottom: 80px;
+    text-align: left;
 }
 
 .card {
@@ -265,7 +397,9 @@ button:hover {
     background: #2a2a2a;
 }
 
-/* Typing dots */
+/* ============================
+   TYPING DOTS
+============================ */
 .typing .dots {
     display: flex;
     gap: 5px;
@@ -281,73 +415,96 @@ button:hover {
     animation: bounce 1.4s infinite ease-in-out;
 }
 
-.typing .dots span:nth-child(1) {
-    animation-delay: -0.32s;
-}
-.typing .dots span:nth-child(2) {
-    animation-delay: -0.16s;
-}
-.typing .dots span:nth-child(3) {
-    animation-delay: 0s;
-}
+.typing .dots span:nth-child(1) { animation-delay: -0.32s; }
+.typing .dots span:nth-child(2) { animation-delay: -0.16s; }
+.typing .dots span:nth-child(3) { animation-delay: 0s; }
 
 @keyframes bounce {
-    0%, 80%, 100% {
-        transform: scale(0);
-    }
-    40% {
-        transform: scale(1);
-    }
+    0%, 80%, 100% { transform: scale(0); }
+    40%           { transform: scale(1); }
 }
 
-@media (max-width: 600px) {
+/* ============================
+   MOBILE (max-width: 768px)
+============================ */
+@media (max-width: 768px) {
 
-    /* Header smaller */
+    body {
+        display: block;
+        overflow: hidden;
+    }
+
+    /* Sidebar becomes floating overlay */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        width: 260px !important;
+        min-width: 260px !important;
+        height: 100dvh;
+        transition: left 0.3s ease;
+        z-index: 1000;
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    /* Show close button on mobile */
+    .close-btn {
+        display: block;
+    }
+
+    /* Overlay */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 999;
+    }
+
+    .sidebar-overlay.show {
+        display: block;
+    }
+
+    /* Swap icons */
+    .desktop-toggle { display: none; }
+    .mobile-toggle  { display: flex; }
+
+    .app {
+        width: 100%;
+        height: 100dvh;
+    }
+
     .header {
         font-size: 14px;
         padding: 12px;
     }
 
-    /* Chat padding */
     #chatbox {
         padding: 12px 12px 120px 12px;
-        width: 100%;
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-
-    /* Input full width */
-    .input-area.center {
-        width: 90%;
-        top: 70%;
-    }
-
-    .input-area.bottom textarea {
         max-width: 100%;
     }
 
-    /* Messages full readable */
     .message {
-        max-width: 75%;
+        max-width: 78%;
         font-size: 13px;
     }
 
-    /* Welcome screen smaller */
+    .input-area.center {
+        width: 90%;
+        top: 68%;
+    }
+
     .welcome {
         width: 90%;
         top: 30%;
-        text-align: center;
     }
 
-    .welcome h1 {
-        font-size: 22px;
-    }
+    .welcome h1 { font-size: 22px; }
+    .welcome p  { font-size: 14px; }
 
-    .welcome p {
-        font-size: 14px;
-    }
-
-    /* Cards stacked */
     .suggestions {
         grid-template-columns: 1fr;
     }

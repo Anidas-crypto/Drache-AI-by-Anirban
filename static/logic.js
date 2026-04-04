@@ -3,16 +3,14 @@
 // ============================
 const supabaseUrl = "https://zhrjmnrfklzuxmfbdqhg.supabase.co";
 const supabaseKey = "sb_publishable_aIbByN1rFc9V3AH41Kyz6A_e1XppA1Z";
-
-// ✅ FIXED: renamed to supabaseClient to avoid conflict with CDN global
 const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const chatbox = document.getElementById("chatbox");
-    const input = document.getElementById("input");
+    const chatbox  = document.getElementById("chatbox");
+    const input    = document.getElementById("input");
     const inputArea = document.getElementById("inputArea");
-    const welcome = document.getElementById("welcome");
+    const welcome  = document.getElementById("welcome");
 
     // ============================
     // 🔥 LOAD OLD MESSAGES
@@ -24,10 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .select("*")
                 .order("created_at", { ascending: true });
 
-            if (error) {
-                console.error("❌ Load error:", error.message);
-                return;
-            }
+            if (error) { console.error("❌ Load error:", error.message); return; }
 
             if (data.length > 0 && welcome) {
                 welcome.style.display = "none";
@@ -63,11 +58,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const padding = parseFloat(computed.paddingTop) + parseFloat(computed.paddingBottom);
         const singleLineHeight = lineHeight + padding;
 
-        if (input.scrollHeight > singleLineHeight + 2) {
-            input.style.height = input.scrollHeight + "px";
-        } else {
-            input.style.height = singleLineHeight + "px";
-        }
+        input.style.height = (input.scrollHeight > singleLineHeight + 2)
+            ? input.scrollHeight + "px"
+            : singleLineHeight + "px";
     }
 
     input.addEventListener("input", autoResize);
@@ -79,53 +72,41 @@ document.addEventListener("DOMContentLoaded", function () {
         let message = input.value.trim();
         if (!message) return;
 
-        // Hide welcome screen
         if (welcome) {
             welcome.style.opacity = "0";
             setTimeout(() => { welcome.style.display = "none"; }, 300);
         }
 
-        // Move input to bottom
         inputArea.classList.remove("center");
         inputArea.classList.add("bottom");
 
-        // Show user message in UI
         const userMsg = document.createElement("div");
         userMsg.classList.add("message", "user");
         userMsg.innerText = message;
         chatbox.appendChild(userMsg);
 
-        // ✅ Save user message to Supabase safely
         try {
             const { error } = await supabaseClient
                 .from("messages")
                 .insert([{ role: "user", content: message }]);
-
             if (error) console.warn("⚠️ Supabase user save failed:", error.message);
-
         } catch (e) {
             console.warn("⚠️ Supabase crashed on user save:", e);
         }
 
-        // Clear input
         input.value = "";
         input.style.height = "auto";
         chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: "smooth" });
 
-        // Show typing dots
         const typingMsg = document.createElement("div");
         typingMsg.classList.add("message", "bot", "typing");
         typingMsg.innerHTML = `
             <div class="dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        `;
+                <span></span><span></span><span></span>
+            </div>`;
         chatbox.appendChild(typingMsg);
         chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: "smooth" });
 
-        // ✅ Fetch AI reply from backend
         try {
             let response = await fetch(`/chat?prompt=${encodeURIComponent(message)}`, {
                 credentials: "same-origin"
@@ -138,7 +119,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             let reply = data.reply || data.error || "No response";
 
-            // Show bot reply in UI
             const botMsg = document.createElement("div");
             botMsg.classList.add("message", "bot");
             chatbox.appendChild(botMsg);
@@ -148,14 +128,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: "smooth" });
 
-            // ✅ Save bot reply to Supabase safely
             try {
                 const { error } = await supabaseClient
                     .from("messages")
                     .insert([{ role: "bot", content: reply }]);
-
                 if (error) console.warn("⚠️ Supabase bot save failed:", error.message);
-
             } catch (e) {
                 console.warn("⚠️ Supabase crashed on bot save:", e);
             }
@@ -163,18 +140,16 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (err) {
             typingMsg.remove();
             console.error("❌ Fetch failed:", err);
-
             const errorMsg = document.createElement("div");
             errorMsg.classList.add("message", "bot");
             errorMsg.innerText = "❌ Server error. Check console.";
             chatbox.appendChild(errorMsg);
-
             chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: "smooth" });
         }
     };
 
     // ============================
-    // ✅ ENTER KEY SUPPORT
+    // ✅ ENTER KEY
     // ============================
     input.addEventListener("keydown", function (e) {
         if (e.key === "Enter" && !e.shiftKey) {
@@ -196,8 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <button onclick="copyCode(this)">Copy</button>
                     </div>
                     <pre><code>${escapeHtml(code)}</code></pre>
-                </div>
-                `;
+                </div>`;
             })
             .replace(/\n/g, "<br>");
     }
@@ -231,13 +205,82 @@ document.addEventListener("DOMContentLoaded", function () {
     async function typeMessage(element, text) {
         let words = text.split(" ");
         element.innerHTML = "";
-
         for (let i = 0; i < words.length; i++) {
             element.innerHTML += words[i] + " ";
-            await new Promise(resolve =>
-                setTimeout(resolve, Math.random() * 30 + 20)
-            );
+            await new Promise(r => setTimeout(r, Math.random() * 30 + 20));
         }
     }
+
+    // ============================
+    // 🔥 SIDEBAR FUNCTIONS
+    // ============================
+    let sidebarOpen = true; // desktop starts open
+
+    window.toggleSidebar = function () {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+        const isMobile = window.innerWidth <= 768;
+
+        if (sidebarOpen) {
+            sidebar.classList.remove("open");
+            if (isMobile) overlay.classList.remove("show");
+            sidebarOpen = false;
+        } else {
+            sidebar.classList.add("open");
+            if (isMobile) overlay.classList.add("show");
+            sidebarOpen = true;
+        }
+    };
+
+    window.closeSidebar = function () {
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            document.getElementById("sidebar").classList.remove("open");
+            document.getElementById("sidebarOverlay").classList.remove("show");
+            sidebarOpen = false;
+        }
+    };
+
+    // Fix sidebar on window resize
+    window.addEventListener("resize", function () {
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("sidebarOverlay");
+
+        if (window.innerWidth > 768) {
+            sidebar.classList.add("open");
+            overlay.classList.remove("show");
+            sidebarOpen = true;
+        } else {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+            sidebarOpen = false;
+        }
+    });
+
+    window.newChat = function () {
+        chatbox.innerHTML = "";
+        if (welcome) {
+            welcome.style.display = "block";
+            welcome.style.opacity = "1";
+        }
+        inputArea.classList.remove("bottom");
+        inputArea.classList.add("center");
+        closeSidebar();
+    };
+
+    window.showHistory = function () {
+        alert("🕘 Chat History coming soon!");
+        closeSidebar();
+    };
+
+    window.showSettings = function () {
+        alert("⚙️ Settings coming soon!");
+        closeSidebar();
+    };
+
+    window.logoutUser = function () {
+        alert("🚪 Logout coming soon!");
+        closeSidebar();
+    };
 
 });

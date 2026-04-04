@@ -10,7 +10,71 @@
     <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
-    <div class="app">
+
+    <!-- ✅ Overlay (mobile only) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- ✅ Sidebar -->
+    <div class="sidebar open" id="sidebar">
+
+        <div class="sidebar-header">
+            <span>🐉 Catura AI</span>
+            <button class="close-btn" onclick="closeSidebar()">✕</button>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <div class="sidebar-item" onclick="newChat()">
+                <span class="sidebar-icon">✏️</span>
+                New Chat
+            </div>
+
+            <div class="sidebar-item" onclick="showHistory()">
+                <span class="sidebar-icon">🕘</span>
+                Chat History
+            </div>
+
+            <div class="sidebar-item" onclick="showSettings()">
+                <span class="sidebar-icon">⚙️</span>
+                Settings
+            </div>
+
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-item logout" onclick="logoutUser()">
+                <span class="sidebar-icon">🚪</span>
+                Logout
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ✅ Main App -->
+    <div class="app" id="app">
+
+        <div class="header">
+            <!-- Desktop: sidebar panel icon -->
+            <button class="sidebar-toggle desktop-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="18" rx="3"/>
+                    <line x1="8" y1="3" x2="8" y2="21"/>
+                    <polyline points="12,9 10,12 12,15"/>
+                </svg>
+            </button>
+
+            <!-- Mobile: hamburger icon -->
+            <button class="sidebar-toggle mobile-toggle" onclick="toggleSidebar()" title="Menu">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="4" y1="7" x2="15" y2="7"/>
+                    <line x1="4" y1="12" x2="20" y2="12"/>
+                    <line x1="4" y1="17" x2="20" y2="17"/>
+                </svg>
+            </button>
+
+            <span>Catura AI</span>
+            <div style="width:38px"></div>
+        </div>
 
         <div id="welcome" class="welcome">
             <h1>👋 Welcome to Catura AI</h1>
@@ -31,14 +95,16 @@
             </div>
         </div>
 
-        <div class="header">Catura AI</div>
         <div id="chatbox"></div>
+
         <div class="input-area center" id="inputArea">
             <textarea id="input" placeholder="Message Catura AI..." rows="1"></textarea>
             <button onclick="sendMessage()">➤</button>
         </div>
+
     </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>    
-<script src="static/logic.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="static/logic.js"></script>
 </body>
 </html>
