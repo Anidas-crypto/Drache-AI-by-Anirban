@@ -5,48 +5,25 @@ const supabaseUrl = "https://zhrjmnrfklzuxmfbdqhg.supabase.co";
 const supabaseKey = "sb_publishable_aIbByN1rFc9V3AH41Kyz6A_e1XppA1Z";
 const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+// ============================
+// ✅ SESSION MANAGEMENT
+// Always create a new session on page load
+// ============================
+function generateSessionId() {
+    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Always fresh session on open
+let currentSessionId = generateSessionId();
+let chatTitle = "New Chat";
+let firstMessage = true; // track if first message sent
+
 document.addEventListener("DOMContentLoaded", function () {
 
-    const chatbox  = document.getElementById("chatbox");
-    const input    = document.getElementById("input");
+    const chatbox   = document.getElementById("chatbox");
+    const input     = document.getElementById("input");
     const inputArea = document.getElementById("inputArea");
-    const welcome  = document.getElementById("welcome");
-
-    // ============================
-    // 🔥 LOAD OLD MESSAGES
-    // ============================
-    async function loadMessages() {
-        try {
-            const { data, error } = await supabaseClient
-                .from("messages")
-                .select("*")
-                .order("created_at", { ascending: true });
-
-            if (error) { console.error("❌ Load error:", error.message); return; }
-
-            if (data.length > 0 && welcome) {
-                welcome.style.display = "none";
-                inputArea.classList.remove("center");
-                inputArea.classList.add("bottom");
-            }
-
-            data.forEach(msg => {
-                const div = document.createElement("div");
-                div.classList.add("message", msg.role);
-                div.innerHTML = msg.role === "bot"
-                    ? formatMessage(msg.content)
-                    : msg.content;
-                chatbox.appendChild(div);
-            });
-
-            chatbox.scrollTop = chatbox.scrollHeight;
-
-        } catch (e) {
-            console.error("❌ loadMessages crashed:", e);
-        }
-    }
-
-    loadMessages();
+    const welcome   = document.getElementById("welcome");
 
     // ============================
     // 🔥 AUTO RESIZE TEXTAREA
@@ -72,6 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let message = input.value.trim();
         if (!message) return;
 
+        // Hide welcome screen
         if (welcome) {
             welcome.style.opacity = "0";
             setTimeout(() => { welcome.style.display = "none"; }, 300);
@@ -80,15 +58,38 @@ document.addEventListener("DOMContentLoaded", function () {
         inputArea.classList.remove("center");
         inputArea.classList.add("bottom");
 
+        // Show user message
         const userMsg = document.createElement("div");
         userMsg.classList.add("message", "user");
         userMsg.innerText = message;
         chatbox.appendChild(userMsg);
 
+        // ✅ On first message — create session in DB
+        if (firstMessage) {
+            firstMessage = false;
+            chatTitle = message.length > 40
+                ? message.substring(0, 40) + "..."
+                : message;
+
+            try {
+                await supabaseClient.from("chat_sessions").insert([{
+                    session_id: currentSessionId,
+                    title: chatTitle
+                }]);
+            } catch (e) {
+                console.warn("⚠️ Session create failed:", e);
+            }
+        }
+
+        // ✅ Save user message with session_id
         try {
             const { error } = await supabaseClient
                 .from("messages")
-                .insert([{ role: "user", content: message }]);
+                .insert([{
+                    role: "user",
+                    content: message,
+                    session_id: currentSessionId
+                }]);
             if (error) console.warn("⚠️ Supabase user save failed:", error.message);
         } catch (e) {
             console.warn("⚠️ Supabase crashed on user save:", e);
@@ -98,6 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
         input.style.height = "auto";
         chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: "smooth" });
 
+        // Show typing dots
         const typingMsg = document.createElement("div");
         typingMsg.classList.add("message", "bot", "typing");
         typingMsg.innerHTML = `
@@ -107,6 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
         chatbox.appendChild(typingMsg);
         chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: "smooth" });
 
+        // ✅ Fetch AI reply
         try {
             let response = await fetch(`/chat?prompt=${encodeURIComponent(message)}`, {
                 credentials: "same-origin"
@@ -128,10 +131,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
             chatbox.scrollTo({ top: chatbox.scrollHeight, behavior: "smooth" });
 
+            // ✅ Save bot reply with session_id
             try {
                 const { error } = await supabaseClient
                     .from("messages")
-                    .insert([{ role: "bot", content: reply }]);
+                    .insert([{
+                        role: "bot",
+                        content: reply,
+                        session_id: currentSessionId
+                    }]);
                 if (error) console.warn("⚠️ Supabase bot save failed:", error.message);
             } catch (e) {
                 console.warn("⚠️ Supabase crashed on bot save:", e);
@@ -157,6 +165,115 @@ document.addEventListener("DOMContentLoaded", function () {
             sendMessage();
         }
     });
+
+    // ============================
+    // 🔥 LOAD A SPECIFIC SESSION
+    // ============================
+    async function loadSession(sessionId) {
+        chatbox.innerHTML = "";
+
+        try {
+            const { data, error } = await supabaseClient
+                .from("messages")
+                .select("*")
+                .eq("session_id", sessionId)
+                .order("created_at", { ascending: true });
+
+            if (error) { console.error("❌ Load session error:", error.message); return; }
+
+            if (data.length > 0) {
+                if (welcome) welcome.style.display = "none";
+                inputArea.classList.remove("center");
+                inputArea.classList.add("bottom");
+
+                data.forEach(msg => {
+                    const div = document.createElement("div");
+                    div.classList.add("message", msg.role);
+                    div.innerHTML = msg.role === "bot"
+                        ? formatMessage(msg.content)
+                        : msg.content;
+                    chatbox.appendChild(div);
+                });
+
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+        } catch (e) {
+            console.error("❌ loadSession crashed:", e);
+        }
+    }
+
+    // ============================
+    // 🔥 SHOW CHAT HISTORY
+    // ============================
+    window.showHistory = async function () {
+        try {
+            const { data, error } = await supabaseClient
+                .from("chat_sessions")
+                .select("*")
+                .order("created_at", { ascending: false });
+
+            if (error) { console.error("❌ History error:", error.message); return; }
+
+            // Build history panel inside sidebar-menu
+            const menu = document.querySelector(".sidebar-menu");
+            menu.innerHTML = `
+                <div class="history-header">
+                    <button class="back-btn" onclick="showMainMenu()">← Back</button>
+                    <span>Chat History</span>
+                </div>
+            `;
+
+            if (data.length === 0) {
+                menu.innerHTML += `<div class="no-history">No past chats yet.</div>`;
+                return;
+            }
+
+            data.forEach(session => {
+                const item = document.createElement("div");
+                item.classList.add("sidebar-item", "history-item");
+                item.innerHTML = `
+                    <span class="sidebar-icon">💬</span>
+                    <div class="history-info">
+                        <div class="history-title">${session.title || "Untitled"}</div>
+                        <div class="history-date">${new Date(session.created_at).toLocaleDateString()}</div>
+                    </div>
+                `;
+                item.onclick = async () => {
+                    // Switch to this session
+                    currentSessionId = session.session_id;
+                    firstMessage = false;
+                    await loadSession(session.session_id);
+                    showMainMenu();
+                    closeSidebar();
+                };
+                menu.appendChild(item);
+            });
+
+        } catch (e) {
+            console.error("❌ showHistory crashed:", e);
+        }
+    };
+
+    // ============================
+    // 🔥 BACK TO MAIN MENU
+    // ============================
+    window.showMainMenu = function () {
+        const menu = document.querySelector(".sidebar-menu");
+        menu.innerHTML = `
+            <div class="sidebar-item" onclick="newChat()">
+                <span class="sidebar-icon">✏️</span>
+                New Chat
+            </div>
+            <div class="sidebar-item" onclick="showHistory()">
+                <span class="sidebar-icon">🕘</span>
+                Chat History
+            </div>
+            <div class="sidebar-item" onclick="showSettings()">
+                <span class="sidebar-icon">⚙️</span>
+                Settings
+            </div>
+        `;
+    };
 
     // ============================
     // 🔥 FORMAT MESSAGE
@@ -214,7 +331,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ============================
     // 🔥 SIDEBAR FUNCTIONS
     // ============================
-    let sidebarOpen = true; // desktop starts open
+    let sidebarOpen = true;
 
     window.toggleSidebar = function () {
         const sidebar = document.getElementById("sidebar");
@@ -241,11 +358,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-    // Fix sidebar on window resize
     window.addEventListener("resize", function () {
         const sidebar = document.getElementById("sidebar");
         const overlay = document.getElementById("sidebarOverlay");
-
         if (window.innerWidth > 768) {
             sidebar.classList.add("open");
             overlay.classList.remove("show");
@@ -258,18 +373,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     window.newChat = function () {
+        // Fresh session
+        currentSessionId = generateSessionId();
+        firstMessage = true;
+        chatTitle = "New Chat";
+
         chatbox.innerHTML = "";
+
         if (welcome) {
             welcome.style.display = "block";
             welcome.style.opacity = "1";
         }
+
         inputArea.classList.remove("bottom");
         inputArea.classList.add("center");
-        closeSidebar();
-    };
 
-    window.showHistory = function () {
-        alert("🕘 Chat History coming soon!");
+        showMainMenu();
         closeSidebar();
     };
 

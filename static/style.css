@@ -514,3 +514,67 @@ html {
         padding: 12px;
     }
 }
+
+
+/* ============================
+   CHAT HISTORY STYLES
+============================ */
+.history-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 6px 12px 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #aaa;
+    border-bottom: 1px solid #2a2a2a;
+    margin-bottom: 8px;
+}
+
+.back-btn {
+    background: transparent;
+    border: none;
+    color: #10a37f;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.back-btn:hover {
+    background: #1a2a1a;
+}
+
+.history-item {
+    align-items: flex-start !important;
+    padding: 10px 12px !important;
+}
+
+.history-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.history-title {
+    font-size: 13px;
+    color: #e5e5e5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 170px;
+}
+
+.history-date {
+    font-size: 11px;
+    color: #666;
+}
+
+.no-history {
+    padding: 20px;
+    text-align: center;
+    color: #555;
+    font-size: 13px;
+}
